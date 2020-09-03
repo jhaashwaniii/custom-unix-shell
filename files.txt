@@ -1,0 +1,13 @@
+a.out
+collonCommands.c
+commandfile.txt
+files.txt
+pipes.c
+redirection.c
+saa
+
+shell.c
+shell (copy).c
+signals.c
+userdefinedcommands.c
+userinput.c
