@@ -3,8 +3,15 @@ int executeSingleRedirection(char *input1,char *input2,char** commandArgs){
  pid_t pid1=fork();
     if(pid1==0){
    int fd= open(input2,O_CREAT | O_WRONLY | O_TRUNC , S_IRUSR | S_IWUSR | S_IRGRP );
+   if(fd==-1){
+	   printf("illegal command or argument\n");
+            exit(0);
+   }
 	   dup2(fd,STDOUT_FILENO);
-		execvp(commandArgs[0],commandArgs);
+		if(execvp(commandArgs[0],commandArgs)<0){
+			printf("illegal command or argument\n");
+            exit(0);
+		}
  }
  else{
 	 waitpid(pid1,NULL,0);
@@ -18,9 +25,16 @@ int executeDoubleRedirection(char *input1,char *input2,char *input3,char** comma
     if(pid1==0){
 	    int fd1=open(input2,O_RDONLY );
 		int fd2= open(input3,O_CREAT | O_WRONLY | O_TRUNC , S_IRUSR | S_IWUSR | S_IRGRP );
+		if(fd1==-1||fd2==-1){
+			printf("illegal command or argument\n");
+            exit(0);
+		}
 	    dup2(fd1,STDIN_FILENO);
 	    dup2(fd2,STDOUT_FILENO);
-		execvp(commandArgs[0],commandArgs);
+		if(execvp(commandArgs[0],commandArgs)<0){
+			printf("illegal command or argument\n");
+            exit(0);
+		}
  }
  else{
 	 waitpid(pid1,&status,0);

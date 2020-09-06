@@ -1,8 +1,7 @@
 void handle_sigint(int sig) 
 { 
     printf("the program is interrupted, do you want to exit [Y/N]"); 
-	 char ch1, ch2='Y',ch3;
-  // ch1 = getche();
+	 char ch1, ch2='Y';
     scanf("%c", &ch1);
    if(ch1==ch2)
    {
@@ -10,8 +9,7 @@ void handle_sigint(int sig)
      exit(0);
    }
     else{
-		// int a=getchar();
-         // signal(SIGINT, handle_sigint);
+          signal(SIGINT, handle_sigint);
 		  }
    
 }
@@ -26,7 +24,7 @@ int handleExit(){
 	return 0;
 }
 int handleKill(char** commadArgs){
-	 printf("Got SIGTERM-Leaving");
+	 printf("Got SIGTERM-Leaving\n");
 		exit(0);
 
 }

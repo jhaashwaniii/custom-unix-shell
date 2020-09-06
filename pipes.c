@@ -6,8 +6,11 @@ int executePipeCommands(char *input1,char *input2,char** command1Args,char** com
 	   dup2(fd[1],STDOUT_FILENO);
 		close(fd[0]);
 		close(fd[1]);
-		execvp(command1Args[0],command1Args);
-   // exit(0);
+		if(execvp(command1Args[0],command1Args)<0){
+			printf("illegal command or argument\n");
+			exit(0);
+		}
+   exit(0);
  }
  else{
   pid_t pid2=fork();
@@ -15,7 +18,11 @@ int executePipeCommands(char *input1,char *input2,char** command1Args,char** com
      dup2(fd[0],STDIN_FILENO);
         close(fd[0]);
 		close(fd[1]);
-		execvp(command2Args[0],command2Args);
+		if(execvp(command2Args[0],command2Args)<0){
+			printf("illegal command or argument\n");
+			exit(0);
+		}
+		exit(0);
   }
   else{
        close(fd[0]);
@@ -40,7 +47,6 @@ int handlePipeCommands(char *input,char** command1Args,char** command2Args)
 		break;
      	}
 		seprateCommand[count++] = ptr;
-		printf("command1-%s",ptr);
 		ptr = strtok(NULL, delim);
 	}
 	removeSpace(seprateCommand[0],command1Args);

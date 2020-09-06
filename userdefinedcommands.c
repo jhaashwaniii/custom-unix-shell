@@ -13,14 +13,13 @@ int checkresidentmemory(char* data,char** commadArgs){
 	arg[6]=NULL;
 	int pid=fork();
 	
-	if(pid<0)
+	if(pid==0)
 	{
-		printf("fork failed");
-	}
-	else if(pid==0)
-	{
-		printf("i am child");
-		execvp("ps",arg);
+		if(execvp("ps",arg)<0)
+		{
+			printf("illegal command or argument\n");
+			exit(0);
+		}
 	}
 	else
 	{
@@ -31,14 +30,13 @@ int checkresidentmemory(char* data,char** commadArgs){
 int sortFile(char** commadArgs)
 {
     int pid=fork();
-	if(pid<0)
+	 if(pid==0)
 	{
-		printf("fork failed");
-	}
-	else if(pid==0)
-	{
-		printf("i am child");
-		execlp("sort","sort",commadArgs[1],NULL);
+		if(execlp("sort","sort",commadArgs[1],NULL)<0)
+		{
+			printf("illegal command or argument\n");
+			exit(0);
+		}
 	}
 	else
 	{
@@ -48,15 +46,14 @@ int sortFile(char** commadArgs)
 }
 int listFiles(char** commadArgs)
 {
-	int fd[2];
-	if(pipe(fd)==-1){
-		printf("pipe failed");
-	}
     int pid=fork();
      if(pid==0)
 	{      close(STDOUT_FILENO);
 		int fd=open("files.txt",O_CREAT | O_WRONLY | O_TRUNC , S_IRUSR | S_IWUSR | S_IRGRP);
-		execlp("ls","ls",NULL);
+		if(execlp("ls","ls",NULL)<0){
+			printf("illegal command or argument\n");
+			exit(0);
+		}
 	}
 	else{
 		wait(NULL);
@@ -65,7 +62,7 @@ int listFiles(char** commadArgs)
 }
 int checkcpupercentage(char *argv[]){
 	int totalCPUNumber=get_nprocs_conf(); 
-	char firstPath[100]="/proc/";
+	char firstPath[150]="/proc/";
 	char *temp=firstPath;
 	
 	while(*temp!='\0')
@@ -76,96 +73,95 @@ int checkcpupercentage(char *argv[]){
 		temp++;
 	strncpy(temp,"/stat",6);
 	
-	FILE* fp;
+	FILE* file;
 	
-	fp=fopen(firstPath,"r");
-	if(fp==NULL)
-		printf("error");
+	file=fopen(firstPath,"r");
+	if(file==NULL)
+		printf("illegal command or argument\n");
+	int totalSpaces=13;
+	int c=fgetc(file);
 	
-	int spaces=13;
-	int c=fgetc(fp);
-	
-	while(spaces)
+	while(totalSpaces)
 	{
-		int c=fgetc(fp);
-		//printf(" %c\n",c);
+		int c=fgetc(file);
 		if(c==' ')
-			spaces--;
+			totalSpaces--;
 	}
-	float user1=0,system1=0;
+	float firstUser=0,system1=0;
 	
-	while((c=fgetc(fp))!=' ')
-		user1=user1*10+(c-'0');
+	while((c=fgetc(file))!=' ')
+		firstUser=firstUser*10+(c-'0');
 	
-	while((c=fgetc(fp))!=' ')
+	while((c=fgetc(file))!=' ')
 		system1=system1*10+( c-'0');
 	
-	fp=fopen("/proc/stat","r");
-	if(fp==NULL)
+	file=fopen("/proc/stat","r");
+	if(file==NULL)
 		printf("error");
 
-	while((c=fgetc(fp))!=' ');
+	while((c=fgetc(file))!=' ');
 	float total1=0;
 	
 	while(c!='\n')
 	{
 		int cur=0;
-		while((c=fgetc(fp))!=' ' && c!='\n')
+		while((c=fgetc(file))!=' ' && c!='\n')
 			cur=cur*10+(c-'0');
 		total1+=cur;
 	}
-	
-	while(sleep(1)); ///delay for 1 sec an then calcualting again
-	
-	fp=fopen(firstPath,"r");
-	if(fp==NULL)
+	while(sleep(1)); 
+	file=fopen(firstPath,"r");
+	if(file==NULL)
 		printf("error");
 	
-	 spaces=13;
-	 c=fgetc(fp);
+	 totalSpaces=13;
+	 c=fgetc(file);
 	
-	while(spaces)
+	while(totalSpaces)
 	{
-		int c=fgetc(fp);
-		//printf(" %c\n",c);
+		int c=fgetc(file);
 		if(c==' ')
-			spaces--;
+			totalSpaces--;
 	}
-	float user2=0,system2=0;
+	float secondUser=0,system2=0;
 	
-	while((c=fgetc(fp))!=' ')
-		user2=user2*10+(c-'0');
+	while((c=fgetc(file))!=' ')
+		secondUser=secondUser*10+(c-'0');
 	
-	while((c=fgetc(fp))!=' ')
+	while((c=fgetc(file))!=' ')
 		system2=system2*10+( c-'0');
 	
-	fp=fopen("/proc/stat","r");
-	if(fp==NULL)
-		printf("error");
+	file=fopen("/proc/stat","r");
+	if(file==NULL)
+	printf("illegal command or argument\n");
 
-	while((c=fgetc(fp))!=' ');
+	while((c=fgetc(file))!=' ');
 	float total2=0;
 	
 	while(c!='\n')
 	{
 		int cur=0;
-		while((c=fgetc(fp))!=' ' && c!='\n')
+		while((c=fgetc(file))!=' ' && c!='\n')
 			cur=cur*10+(c-'0');
 		total2+=cur;
 	}
 	
-	float user=((user2-user1)*100*totalCPUNumber)/(total2-total1);
-	float system=((system2-system1)*100*totalCPUNumber)/(total2-total1);
-	printf("user mode cpu percentage: %f\n",user);
-	printf("system mode cpu percentage: %f\n",system);
+	float userCPU=((secondUser-firstUser)*100*totalCPUNumber)/(total2-total1);
+	float systemCPU=((system2-system1)*100*totalCPUNumber)/(total2-total1);
+	printf("user mode cpu percentage: %f%c\n",userCPU,'%');
+	printf("system mode cpu percentage: %f%c\n",systemCPU,'%');
 	return 1;
 	}
 int executeAllFileCommands(char** commadArgs){
 	FILE *f = fopen(commadArgs[1],"r");
-    char ptr[1024];
+	if(f==NULL){
+		  printf("illegal command or argument\n");
+			return 1;
+	}
+    char ptr[10240];
     char *token;
 
-    while (fgets(ptr, 1024, f) != NULL)
+    while (fgets(ptr, 10240, f) != NULL)
     {
         token = strtok(ptr, ",");    
         while(token)

@@ -1,3 +1,0 @@
-checkresidentmemory 11896
-sortFile files.txt
-listFiles

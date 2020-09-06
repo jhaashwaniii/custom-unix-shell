@@ -5,11 +5,10 @@ int executeCollonCommands(char *input1,char *input2,char** command1Args,char** c
  pid_t pid1=fork();
  if(pid1==0){
     if(handleUserDefinedCommands(input1,command1Args)){
-	    //  return 1;
 		exit(0);
       }
       else{
-	       if(execBuiltInCommand(command2Args)){
+	       if(execBuiltInCommand(command1Args)){
 			   exit(0);
 		   }
 	  else{ printf("illegal command or argument\n");

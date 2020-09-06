@@ -22,10 +22,10 @@ int execBuiltInCommand(char** args)
 	 if (pid == 0) { 
 		
         if (execvp(args[0], args) < 0) { 
-            printf("illegal command or argument"); 
+            printf("illegal command or argument\n"); 
+			exit(0);
         } 
 	} else { 
-		// waiting for child to terminate 
 		wait(NULL); 
 		return 1; 
 	} 
